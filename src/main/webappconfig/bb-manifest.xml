@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://www.blackboard.com/bb-manifest-plugin"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.blackboard.com/bb-manifest-plugin https://maven.blackboard.com/content/repositories/releases/blackboard/platform/bb-manifest-plugin/3800.0.0/bb-manifest-plugin-3800.0.0.xsd">
+  
+  <plugin>
+    <name value="${bbname}" />
+    <handle value="${bbhandle}" />
+    <description value="${description}" />
+    <default-locale value="en_US" />
+    <version value="${version}" />
+    
+    <requires>
+      <bbversion value="3900.17.0" />
+    </requires>
+
+    <http-actions>
+      <!-- <config value="config/config.jsp"/> -->
+    </http-actions>
+    
+    <vendor>
+      <id value="${vendorid}" />
+      <name value="${vendorname}" />
+      <url value="${vendorurl}" />
+      <description value="${vendordescription}" />
+    </vendor>
+
+    <application-defs>
+      <application handle="bbuploadmonitorui" 
+        is-sys-tool="true" 
+        is-course-tool="false"
+        is-group-tool="false"
+        is-org-tool="false" 
+        use-ssl="true" name="BB Monitor User Interface" can-allow-guest="false">
+        <description lang="en_US">LBU BB Upload Monitor User Interface</description>
+        <links>
+            <link>
+                <type value="system_tool" />
+                <handle value="entrypage" />
+                <name value="LBU BB Upload Monitor" />
+                <url value="index.html" />
+                <description value="Home page for the LBU BB Upload Monitor building block." />
+            </link>
+        </links>
+      </application>
+    </application-defs>
+
+
+
+    <!-- Code permissions required for proper operation -->
+    <permissions>
+      <permission type="attribute" name="user.authinfo" actions="get"/>
+      <permission type="attribute" name="user.personalinfo" actions="get,set"/>
+
+      <!-- For DNS and SMTP -->
+      <permission type="java.net.SocketPermission" name="*" actions="resolve,connect"/>
+
+      <!-- to send email, need to set mail handling factory -->
+      <permission type="java.lang.RuntimePermission" name="setFactory"/>      
+      
+      <!-- For Jackson serialization -->
+      <permission type="java.lang.reflect.ReflectPermission" name="suppressAccessChecks"/>      
+
+      <permission type="java.util.PropertyPermission" name="*" actions="read"/>
+    </permissions>
+
+  </plugin>
+</manifest>

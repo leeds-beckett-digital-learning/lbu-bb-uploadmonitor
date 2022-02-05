@@ -1,0 +1,4 @@
+
+rootProject.name = 'lbu-bb-uploadmonitor'
+include ':bbb2utils'
+project(':bbb2utils').projectDir = new File(settingsDir, '../bbb2utils')
