@@ -61,6 +61,9 @@
       <!-- For Jackson serialization -->
       <permission type="java.lang.reflect.ReflectPermission" name="suppressAccessChecks"/>      
 
+      <!-- For apache messaging -->
+      <permission type="java.lang.RuntimePermission" name="modifyThread"/>      
+
       <permission type="java.util.PropertyPermission" name="*" actions="read"/>
     </permissions>
 
