@@ -208,9 +208,9 @@ public class StatusServlet extends HttpServlet
     out.println( "<p>What message should be sent to users when they upload a huge video file?</p>" );
     out.println( "<textarea name=\"emailbody\" cols=\"40\" rows=\"10\">" + props.getEMailBody() + "</textarea>" );
     
-    out.println( "<p>File name matching regular expression?</p>" );
+    out.println( "<p>Which files should also be overwritten soon after upload? (regular expression)</p>" );
     out.println( "<input name=\"regex\" value=\"" + props.getFileMatchingExpression() + "\"/>" );
-    out.println( "<p>What message should be sent to users when they upload a huge video file?</p>" );
+    out.println( "<p>What message should be sent to users for the matching files?</p>" );
     out.println( "<textarea name=\"specialemailbody\" cols=\"40\" rows=\"10\">" + props.getSpecialEMailBody() + "</textarea>" );
     
     out.println( "<h3>Submit</h3>" );

@@ -22,6 +22,7 @@ import blackboard.persist.Id;
 import blackboard.persist.user.UserDbLoader;
 import blackboard.platform.intl.BbLocale;
 import blackboard.platform.plugin.PlugInUtil;
+import com.xythos.common.api.NetworkAddress;
 import com.xythos.common.api.VirtualServer;
 import com.xythos.common.api.XythosException;
 import com.xythos.fileSystem.events.EventSubQueue;
@@ -137,6 +138,7 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
   public Path configbase=null;
   
   BuildingBlockCoordinator bbcoord;
+  FileProcessWorker fileprocessworker = new FileProcessWorker( this );
   
   /**
    * The constructor just checks to see how many times it has been called.
@@ -211,7 +213,8 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
     // the message broker over the network that could make starting the building block
     // hang for ages.
     bbcoord.start();
-    
+
+    fileprocessworker.start();
   }
 
 
@@ -429,6 +432,9 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
   {
     logger.info("LBU BB upload monitor plugin destroy");    
 
+    try { this.fileprocessworker.worker.interrupt(); }
+    catch ( Throwable th ) { logger.error( "Exception trying to stop file processing worker thread", th ); }
+    
     try { stopMonitoringXythos(); }
     catch ( Throwable th ) { logger.error( "Exception trying to stop Xythos monitoring", th ); }
     
@@ -651,6 +657,8 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
             boolean isspecial = filepath.matches( filematchingex );
             logger.info( "Does " + filepath + " match " + filematchingex + "? " + isspecial );
             String m = isspecial?specialemailbody:emailbody;
+            if ( isspecial )
+              fileprocessworker.add( filepath, entry.getVirtualServer() );
             InternetAddress recipient = new InternetAddress( user.getEmailAddress() );
             recipient.setPersonal( name );
             sendEmail( recipient, properties, m );
