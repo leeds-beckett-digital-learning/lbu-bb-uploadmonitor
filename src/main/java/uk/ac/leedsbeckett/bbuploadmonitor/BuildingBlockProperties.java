@@ -77,6 +77,14 @@ public class BuildingBlockProperties extends Properties
   {
     setProperty( "filematchingexpression", filematchingexpression );
   }
+  public String getOverwriteFilePath()
+  {
+    return getProperty( "overwritefile" );
+  }
+  public void setOverwriteFilePath( String overwritefile )
+  {
+    setProperty( "overwritefile", overwritefile );
+  }
   public String getEMailBody()
   {
     return getProperty( "emailbody" );

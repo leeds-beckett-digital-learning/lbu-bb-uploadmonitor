@@ -210,6 +210,8 @@ public class StatusServlet extends HttpServlet
     
     out.println( "<p>Which files should also be overwritten soon after upload? (regular expression)</p>" );
     out.println( "<input name=\"regex\" value=\"" + props.getFileMatchingExpression() + "\"/>" );
+    out.println( "<p>Path of the file that will overwrite selected files?</p>" );
+    out.println( "<input name=\"overwritefile\" value=\"" + props.getOverwriteFilePath() + "\"/>" );
     out.println( "<p>What message should be sent to users for the matching files?</p>" );
     out.println( "<textarea name=\"specialemailbody\" cols=\"40\" rows=\"10\">" + props.getSpecialEMailBody() + "</textarea>" );
     
@@ -226,6 +228,7 @@ public class StatusServlet extends HttpServlet
     String emailsubject     = req.getParameter( "emailsubject"     );
     String emailbody        = req.getParameter( "emailbody"        );
     String regex            = req.getParameter( "regex"            );
+    String overwritefile    = req.getParameter( "overwritefile"    );
     String specialemailbody = req.getParameter( "specialemailbody" );
     String emailfrom        = req.getParameter( "emailfrom"        );
     String emailfromname    = req.getParameter( "emailfromname"    );
@@ -239,6 +242,7 @@ public class StatusServlet extends HttpServlet
       props.setAction( action );
       props.setEMailSubject( emailsubject );
       props.setFileMatchingExpression( regex );
+      props.setOverwriteFilePath( overwritefile );
       props.setEMailBody( emailbody );
       props.setSpecialEMailBody( specialemailbody );
       props.setEMailFrom( emailfrom );

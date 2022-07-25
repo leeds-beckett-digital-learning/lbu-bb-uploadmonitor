@@ -121,7 +121,7 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
   String serverid;  
   int filesize=100;  // in mega bytes
   String action = "none";
-  String emailsubject, emailbody, specialemailbody, filematchingex;
+  String emailsubject, emailbody, specialemailbody, filematchingex, overwritefile;
   InternetAddress emailfrom;
   File propsfile;
 
@@ -460,6 +460,7 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
       emailsubject = configproperties.getEMailSubject();
       emailbody = configproperties.getEMailBody();
       filematchingex = configproperties.getFileMatchingExpression();
+      overwritefile = configproperties.getOverwriteFilePath();
       specialemailbody = configproperties.getSpecialEMailBody();
       emailfrom = new InternetAddress( configproperties.getEMailFrom() );
       emailfrom.setPersonal( configproperties.getEMailFromName() );
@@ -765,7 +766,7 @@ public class WebAppCore implements ServletContextListener, StorageServerEventLis
       String m = tm.getText();
       if ( "reconfigure".equals( m ) )
       {
-        loadSettings();
+        reloadSettings();
       }
     }
     catch (JMSException ex)

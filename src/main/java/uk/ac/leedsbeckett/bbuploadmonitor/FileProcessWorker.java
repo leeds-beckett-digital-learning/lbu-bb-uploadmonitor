@@ -77,6 +77,7 @@ public class FileProcessWorker implements Runnable
   {
     if ( worker != null )
       throw new IllegalArgumentException( "Thread already started." );
+    webappcore.logger.info( "FileProcessWorker is starting its thread." );
     worker = new Thread( this );
     worker.start();
   }
@@ -84,22 +85,42 @@ public class FileProcessWorker implements Runnable
   @Override
   public void run()
   {
-    webappcore.logger.info( "FileProcessWorker is starting its thread." );
+    try
+    {
+      webappcore.logger.info( "FileProcessWorker has started." );
+      process();
+    }
+    catch ( Throwable t )
+    {
+      webappcore.logger.info( "Exception stopped the FileProcessWorker.", t );     
+    }
+    finally
+    {
+      worker = null;    
+    }
+    webappcore.logger.info( "FileProcessWorker has stopped." );
+  }
+  
+  public void process()
+  {
     try { Thread.sleep( 5000 ); } catch (InterruptedException ex) {}
     while ( !worker.isInterrupted() )
-    {
+    {    
       // Clear the queue
       Entry entry=null;
       while ( (entry = pop()) != null )
       {
         webappcore.logger.debug( "Processing {" + entry.path + "}" );
-        try
+        if ( webappcore.overwritefile != null && webappcore.overwritefile.length() > 0 )
         {
-          overwriteOneHugeFile( entry.path, "/institution/hugefiles/videoremoved.mp4", entry.vs );
-        }
-        catch ( Exception ex )
-        {
-          webappcore.logger.error( "Exception while attempting to overwrite file.", ex );
+          try
+          {
+            overwriteOneHugeFile( entry.path, webappcore.overwritefile, entry.vs );
+          }
+          catch ( Exception ex )
+          {
+            webappcore.logger.error( "Exception while attempting to overwrite file.", ex );
+          }
         }
       }
       
@@ -110,7 +131,7 @@ public class FileProcessWorker implements Runnable
         webappcore.logger.debug( "FileProcessWorker woke up." );
       }
     }
-    webappcore.logger.info( "FileProcessWorker thread ending." );
+    webappcore.logger.info( "FileProcessWorker thread ending due to thread interruption." );
   }
   
   void overwriteOneHugeFile( String targetpath, String sourcepath, VirtualServer vs ) throws StorageServerException, XythosException, TaskException
