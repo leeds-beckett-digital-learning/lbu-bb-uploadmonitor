@@ -17,11 +17,14 @@ import com.xythos.storageServer.api.StorageServerException;
 import java.util.ArrayList;
 
 /**
- *
+ * This class overwrites Xythos files with another Xythos file and does
+ * that in a background thread.
+ * 
  * @author jon
  */
 public class FileProcessWorker implements Runnable
 {
+  public static final int MINIMUM_AGE_MILLIS = 1000*60;
   Thread worker;
   WebAppCore webappcore;
 
@@ -33,16 +36,21 @@ public class FileProcessWorker implements Runnable
   }
 
   /**
-   * Called from other thread to push a Xythos path into the queue.
+   * Called from other thread to push an instruction to overwrite a file
+   * into a to do list.
    * 
-   * @param path 
+   * 
+   * @param targetpath The Xythos file to overwrite.
+   * @param sourcepath The Xythos file to overwrite with.
+   * @param vs The Xythos server ID where both files are located.
    */
-  public void add( String path, VirtualServer vs )
+  public void add( String targetpath, String sourcepath, VirtualServer vs )
   {
     synchronized( pending )
     {
       Entry entry = new Entry();
-      entry.path = path;
+      entry.sourcepath = sourcepath;
+      entry.targetpath = targetpath;
       entry.vs = vs;
       entry.timestamp = System.currentTimeMillis();
       pending.add( entry );
@@ -50,7 +58,7 @@ public class FileProcessWorker implements Runnable
   }
   
   /**
-   * Called from inside the worker thread to get the next path to
+   * Called from inside the worker thread to get the next instruction to
    * work on. Requires that a path to be a minimum age before popping.
    * @return 
    */
@@ -63,7 +71,7 @@ public class FileProcessWorker implements Runnable
       {
         Entry e = pending.get( i );
         long age = now - e.timestamp;
-        if ( age > (1000*60) )
+        if ( age > MINIMUM_AGE_MILLIS )
         {
           pending.remove( i );
           return e;
@@ -72,7 +80,10 @@ public class FileProcessWorker implements Runnable
       return null;
     }    
   }
-  
+
+  /**
+   * Called once to start the thread that does the work.
+   */
   public void start()
   {
     if ( worker != null )
@@ -82,6 +93,15 @@ public class FileProcessWorker implements Runnable
     worker.start();
   }
   
+  public void interrupt()
+  {
+    if ( worker != null )
+      worker.interrupt();
+  }
+  
+  /**
+   * The standard thread run method.
+   */
   @Override
   public void run()
   {
@@ -101,6 +121,9 @@ public class FileProcessWorker implements Runnable
     webappcore.logger.info( "FileProcessWorker has stopped." );
   }
   
+  /**
+   * Called by run method. Has the main loop.
+   */
   public void process()
   {
     try { Thread.sleep( 5000 ); } catch (InterruptedException ex) {}
@@ -110,12 +133,12 @@ public class FileProcessWorker implements Runnable
       Entry entry=null;
       while ( (entry = pop()) != null )
       {
-        webappcore.logger.debug( "Processing {" + entry.path + "}" );
-        if ( webappcore.overwritefile != null && webappcore.overwritefile.length() > 0 )
+        webappcore.logger.debug( "Processing {" + entry.targetpath + "}" );
+        if ( entry.sourcepath != null && entry.sourcepath.length() > 0 )
         {
           try
           {
-            overwriteOneHugeFile( entry.path, webappcore.overwritefile, entry.vs );
+            overwriteOneHugeFile(entry.targetpath, entry.sourcepath, entry.vs );
           }
           catch ( Exception ex )
           {
@@ -138,11 +161,6 @@ public class FileProcessWorker implements Runnable
   {
     webappcore.logger.info( "Overwriting " + targetpath );
     Context context=null;
-    if ( !targetpath.startsWith( "/courses/" ) )
-    {
-      webappcore.logger.error( "Can only process files in /courses/ top level directory." );
-      return;
-    }
     
     try
     {
@@ -171,7 +189,6 @@ public class FileProcessWorker implements Runnable
       File f = (File)sourcefile;
       int version = f.getFileVersion();
 
-      //webappcore.logger.info( "copying actual file " + parts[i] + " to " + previouspartial );
       DirectoryEntry newentry = de.copyNode( 
               version,                       // version number of source to copy
               vs,                            // virtual server
@@ -213,7 +230,8 @@ public class FileProcessWorker implements Runnable
   
   class Entry
   {
-    String path;
+    String sourcepath;
+    String targetpath;
     VirtualServer vs;
     long timestamp;
   }

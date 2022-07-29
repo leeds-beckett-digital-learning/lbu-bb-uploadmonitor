@@ -3,7 +3,7 @@ apply plugin: 'war'
 apply plugin: 'maven-publish'
 
 
-version = '0.2.1'
+version = '0.3.0'
 description = 'LBU-BB-UploadMonitor'
 group = 'uk.ac.leedsbeckett'
 
