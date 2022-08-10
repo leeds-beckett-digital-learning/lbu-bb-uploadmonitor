@@ -3,7 +3,7 @@ apply plugin: 'war'
 apply plugin: 'maven-publish'
 
 
-version = '0.3.0'
+version = '0.3.1'
 description = 'LBU-BB-UploadMonitor'
 group = 'uk.ac.leedsbeckett'
 
@@ -71,7 +71,7 @@ dependencies {
     // For StringUtils.isEmpty()
     implementation 'org.apache.commons:commons-text:1.9'
     
-    implementation 'uk.ac.leedsbeckett:bbb2utils:0.1.16'
+    implementation 'uk.ac.leedsbeckett:bbb2utils:0.2.11'
     
     testImplementation 'junit:junit:4.12'
 }
